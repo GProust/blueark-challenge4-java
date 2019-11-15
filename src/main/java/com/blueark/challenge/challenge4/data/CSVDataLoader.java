@@ -14,8 +14,9 @@ import java.util.Map;
 @Slf4j
 public class CSVDataLoader {
 
-    Map<String, List<WaterData>> dataById = new HashMap<>();
-    private Map<String, String> dataToLoad = Map.of("32336_16857", "data/32336_16857_Eau.csv",
+    final Map<String, List<WaterData>> waterDataById = new HashMap<>();
+    final Map<String, List<ElectricityData>> electricityDataById = new HashMap<>();
+    private Map<String, String> waterDataToLoad = Map.of("32336_16857", "data/32336_16857_Eau.csv",
             "32740", "data/32740_Eau.csv",
             "34199", "data/34199_Eau.csv",
             "45088_46311", "data/45088_46311_Eau.csv",
@@ -23,6 +24,13 @@ public class CSVDataLoader {
             "51679_12620", "data/51679_12620_Eau.csv",
             "57130", "data/57130_Eau.csv",
             "55677_55735", "data/BATIMENT_55677_55735_Eau.csv");
+    private Map<String, String> electricityDataToLoad = Map.of("32336_16857", "data/32336_16857_Electricite.csv",
+            "45088_46311", "data/45088_46311_Electricite.csv",
+            "45607_44239", "data/45607_44239_Electricite.csv",
+            "51679_12620", "data/51679_12620_Electricite.csv",
+            "55677_55733", "data/BATIMENT_55677_55733_Electricite.csv",
+            "55677_55734", "data/BATIMENT_55677_55734_Electricite.csv",
+            "55677_55735", "data/BATIMENT_55677_55735_Electricite.csv");
 
     public CSVDataLoader() {
         initDataLoading();
@@ -30,18 +38,27 @@ public class CSVDataLoader {
 
     private void initDataLoading() {
 
-        dataToLoad.entrySet().forEach(entry ->
-        {
+        waterDataToLoad.forEach((key, value) -> {
             try {
-                dataById.put(entry.getKey(),
+                waterDataById.put(key,
                         new CsvToBeanBuilder(
                                 new FileReader(
-                                        getClass().getClassLoader().getResource(entry.getValue()).getPath()))
+                                        getClass().getClassLoader().getResource(value).getPath()))
                                 .withType(WaterData.class).build().parse());
             } catch (FileNotFoundException e) {
                 log.error("Unknown file.");
             }
         });
-        log.info("Map generated : {}", dataById);
+        electricityDataToLoad.forEach((key, value) -> {
+            try {
+                electricityDataById.put(key,
+                        new CsvToBeanBuilder(
+                                new FileReader(
+                                        getClass().getClassLoader().getResource(value).getPath()))
+                                .withType(ElectricityData.class).build().parse());
+            } catch (FileNotFoundException e) {
+                log.error("Unknown file.");
+            }
+        });
     }
 }
