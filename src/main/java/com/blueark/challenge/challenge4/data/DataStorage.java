@@ -41,12 +41,17 @@ public class DataStorage {
         return new ArrayList<>(electricityDataById.get(id));
     }
 
-    public UserData getUserDataById(String id) {
-        return usersRepository.getOne(id);
+    public UserPayload getUserDataById(String id) {
+        final UserData user = usersRepository.getOne(id);
+        final List<String> userNotifications = usersNotificationRepository.findByUserId(id)
+                .stream()
+                .map(UserNotification::getNotificationType)
+                .collect(Collectors.toList());
+        return new UserPayload(id, user.getDepartureDate(), user.getReturnDate(), user.getResidenceType(), userNotifications);
     }
 
     public void saveUsersData(UserPayload userPayload) {
-        final UserData userDataById = getUserDataById(userPayload.getUserId());
+        final UserData userDataById = usersRepository.getOne(userPayload.getUserId());
         userDataById.setDepartureDate(userPayload.getDepartureDate());
         userDataById.setReturnDate(userPayload.getReturnDate());
         userDataById.setResidenceType(userPayload.getResidenceType());

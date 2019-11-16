@@ -19,29 +19,26 @@ import java.util.stream.Collectors;
 public class LeakService {
 
     private static final float MAX_NUMBER_OF_UNDEFINED_VALUES_POURCENTAGE = 0.2f;
-    private static final float MIN_ZERO_NUMBER_POURCENTAGE = 0.1f;
+    private static final float MIN_ZERO_NUMBER_PERCENTAGE = 0.1f;
     private static final int NUMBER_OF_DAYS_WITHOUT_CONSUMPTION_LESS = 1;
 
     @Autowired
     private DataStorage dataStorage;
 
     public LeakResponse isReturningToNoConsumption(String id, Date startDate, Date endDate) {
-        final List<WaterData> waterDataById = SanitizerUtil.sanitizeDate(true, (List) dataStorage.getWaterDataById(id));
-        final List<WaterData> waterDataListFiltered = waterDataById.stream()
-                .filter(waterData -> waterData.getBeginDate().after(startDate))
-                .filter(waterData -> waterData.getEndDate().before(endDate))
-                .collect(Collectors.toList());
+        final List<WaterData> waterDataListFiltered = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, (List) dataStorage.getWaterDataById(id), startDate, endDate);
         final int originalSize = waterDataListFiltered.size();
-        final List<WaterData> sanitizeWaterData = SanitizerUtil.sanitizeCSVData((List) waterDataListFiltered, true);
+        final List<WaterData> sanitizeWaterData = SanitizerUtil.sanitizeCSVData((List) waterDataListFiltered);
         final int sanitizedSize = sanitizeWaterData.size();
         final int diff = Double.valueOf(originalSize * MAX_NUMBER_OF_UNDEFINED_VALUES_POURCENTAGE).intValue();
         final int originalWithout20Pourcent = originalSize - diff;
         if (originalWithout20Pourcent > sanitizedSize)
-            return new LeakResponse("UNKNOWN", "Data are not trustfull enough", null);
+            return new LeakResponse("UNKNOWN", "Data are not trustful enough", null);
         final List<WaterData> datasWithoutConsumption = sanitizeWaterData.stream().filter(waterData -> waterData.getConsumption() == 0).collect(Collectors.toList());
         final int numberOfZero = datasWithoutConsumption.size();
         final WaterData lastZeroConsumption = numberOfZero == 0 ? new WaterData() : datasWithoutConsumption.get(numberOfZero - 1);
-        if (numberOfZero < MIN_ZERO_NUMBER_POURCENTAGE) {
+        final int minZeroExpected = Double.valueOf(originalSize * MIN_ZERO_NUMBER_PERCENTAGE).intValue();
+        if (numberOfZero < minZeroExpected) {
             return new LeakResponse("FAILURE", "There is a potential leak", numberOfZero == 0 ? startDate : lastZeroConsumption.getEndDate());
         }
         GregorianCalendar gregorianCalendar = new GregorianCalendar();

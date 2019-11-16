@@ -3,7 +3,6 @@ package com.blueark.challenge.challenge4.resource.rest;
 import com.blueark.challenge.challenge4.data.DataStorage;
 import com.blueark.challenge.challenge4.data.ElectricityData;
 import com.blueark.challenge.challenge4.data.WaterData;
-import com.blueark.challenge.challenge4.entity.UserData;
 import com.blueark.challenge.challenge4.service.ElectricityService;
 import com.blueark.challenge.challenge4.service.WaterService;
 import com.blueark.challenge.challenge4.util.SanitizerUtil;
@@ -41,12 +40,13 @@ public class DataResource {
     }
 
     @RequestMapping(value = "user", method = RequestMethod.GET, params = {"id"})
-    public UserData getUser(@RequestParam("id") String id) {
+    public UserPayload getUser(@RequestParam("id") String id) {
         return dataStorage.getUserDataById(id);
     }
 
-    @RequestMapping(value = "user", method = RequestMethod.POST)
-    public void updateUser(@RequestBody UserPayload userPayload) {
+    @RequestMapping(value = "user", method = RequestMethod.POST, params = {"id"})
+    public void updateUser(@RequestParam("id") String id, @RequestBody UserPayload userPayload) {
+        userPayload.setUserId(id);
         dataStorage.saveUsersData(userPayload);
     }
 }

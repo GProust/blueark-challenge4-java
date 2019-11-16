@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class SanitizerUtil {
     private static SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
 
-    public static List<CSVData> sanitizeCSVData(List<CSVData> csvDatas, boolean isWaterData) {
+    public static List<CSVData> sanitizeCSVData(List<CSVData> csvDatas) {
         final List<Integer> indexesOfNull = csvDatas.stream()
                 .filter(data -> data.getConsumption() == null)
                 .map(csvDatas::indexOf)
@@ -23,12 +23,10 @@ public class SanitizerUtil {
             indexesOfNull.add(indexesOfNull.get(i) + 1);
         }
         final List<CSVData> csvDataToRemove = indexesOfNull.stream().map(csvDatas::get).collect(Collectors.toList());
-        final List<CSVData> filteredDatas = csvDatas.stream().filter(csvData -> !csvDataToRemove.contains(csvData)).collect(Collectors.toList());
-        sanitizeDate(isWaterData, filteredDatas);
-        return filteredDatas;
+        return csvDatas.stream().filter(csvData -> !csvDataToRemove.contains(csvData)).collect(Collectors.toList());
     }
 
-    public static List<CSVData> sanitizeDate(boolean isWaterData, List<CSVData> filteredDatas) {
+    public static List<CSVData> sanitizeDateAndFilterByPeriod(boolean isWaterData, List<CSVData> filteredDatas, Date startDate, Date endDate) {
         if (isWaterData) {
             filteredDatas.stream().filter(csvData -> csvData.getEndDate() == null).forEach(csvData -> {
                 GregorianCalendar gregorianCalendar = new GregorianCalendar();
@@ -44,7 +42,14 @@ public class SanitizerUtil {
                 csvData.setEndDate(gregorianCalendar.getTime());
             });
         }
-        return filteredDatas;
+        return filterByPeriod(filteredDatas, startDate, endDate);
+    }
+
+    public static List<CSVData> filterByPeriod(List<CSVData> csvData, Date startDate, Date endDate) {
+        return csvData.stream()
+                .filter(waterData -> waterData.getBeginDate().after(startDate))
+                .filter(waterData -> waterData.getEndDate().before(endDate))
+                .collect(Collectors.toList());
     }
 
 
