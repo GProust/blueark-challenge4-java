@@ -24,6 +24,11 @@ public class SanitizerUtil {
     }
 
     public static List<CSVData> sanitizeDateAndFilterByPeriod(boolean isWaterData, List<CSVData> filteredDatas, Date startDate, Date endDate) {
+        if (sanitizeEndDate(isWaterData, filteredDatas).isEmpty()) return new ArrayList<>();
+        return filterByPeriod(filteredDatas, startDate, endDate);
+    }
+
+    public static List<CSVData> sanitizeEndDate(boolean isWaterData, List<CSVData> filteredDatas) {
         if (filteredDatas == null || filteredDatas.isEmpty()) return new ArrayList<>();
         if (isWaterData) {
             filteredDatas.stream().filter(csvData -> csvData.getEndDate() == null).forEach(csvData -> {
@@ -40,7 +45,7 @@ public class SanitizerUtil {
                 csvData.setEndDate(gregorianCalendar.getTime());
             });
         }
-        return filterByPeriod(filteredDatas, startDate, endDate);
+        return filteredDatas;
     }
 
     public static List<CSVData> filterByPeriod(List<CSVData> csvData, Date startDate, Date endDate) {

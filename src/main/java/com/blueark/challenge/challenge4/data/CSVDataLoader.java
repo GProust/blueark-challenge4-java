@@ -25,6 +25,8 @@ public class CSVDataLoader {
             "45607_44239", "data/45607_44239_Eau.csv",
             "51679_12620", "data/51679_12620_Eau.csv",
             "57130", "data/57130_Eau.csv",
+            "654321", "data/654321_Eau.csv",
+            "123456", "data/123456_Eau.csv",
             "55677_55735", "data/BATIMENT_55677_55735_Eau.csv");
     private Map<String, String> electricityDataToLoad = Map.of("32336_16857", "data/32336_16857_Electricite.csv",
             "45088_46311", "data/45088_46311_Electricite.csv",

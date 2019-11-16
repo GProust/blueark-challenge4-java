@@ -1,5 +1,6 @@
 package com.blueark.challenge.challenge4.service;
 
+import com.blueark.challenge.challenge4.data.CSVData;
 import com.blueark.challenge.challenge4.data.DataStorage;
 import com.blueark.challenge.challenge4.data.LeakResponse;
 import com.blueark.challenge.challenge4.data.WaterData;
@@ -8,10 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,13 +32,17 @@ public class LeakService {
         final int diff = Double.valueOf(originalSize * MAX_NUMBER_OF_UNDEFINED_VALUES_POURCENTAGE).intValue();
         final int originalWithout20Pourcent = originalSize - diff;
         if (originalWithout20Pourcent > sanitizedSize)
-            return new LeakResponse("UNKNOWN", "Data are not trustful enough", null);
+            return new LeakResponse("OK", null, null);
         final List<WaterData> datasWithoutConsumption = sanitizeWaterData.stream().filter(waterData -> waterData.getConsumption() == 0).collect(Collectors.toList());
         final int numberOfZero = datasWithoutConsumption.size();
         final WaterData lastZeroConsumption = numberOfZero == 0 ? new WaterData() : datasWithoutConsumption.get(numberOfZero - 1);
         final int minZeroExpected = Double.valueOf(originalSize * MIN_ZERO_NUMBER_PERCENTAGE).intValue();
         if (numberOfZero < minZeroExpected) {
-            return new LeakResponse("FAILURE", "There is a potential leak", numberOfZero == 0 ? startDate : lastZeroConsumption.getEndDate());
+            final Date potentialLeakDate = numberOfZero == 0 ? startDate : lastZeroConsumption.getEndDate();
+            final List<WaterData> waterDataLeak = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, (List) waterDataListFiltered, potentialLeakDate, endDate);
+            final Double minimal = waterDataLeak.stream().min(Comparator.comparingDouble(CSVData::getConsumption)).get().getConsumption();
+            final Double sumLeak = minimal * waterDataLeak.size();
+            return new LeakResponse("FAILURE", String.format("There is a potential leak. Amount of the leak estimated %s", sumLeak), potentialLeakDate);
         }
         GregorianCalendar gregorianCalendar = new GregorianCalendar();
         gregorianCalendar.setTime(lastZeroConsumption.getEndDate() == null ? startDate : lastZeroConsumption.getEndDate());
@@ -48,7 +50,10 @@ public class LeakService {
         final Date time = gregorianCalendar.getTime();
         final WaterData lastWaterData = sanitizeWaterData.get(sanitizeWaterData.size() - 1);
         if (time.before(lastWaterData.getBeginDate())) {
-            return new LeakResponse("FAILURE", "There is a potential leak", lastZeroConsumption.getEndDate());
+            final List<WaterData> waterDataLeak = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, (List) waterDataListFiltered, lastZeroConsumption.getEndDate(), endDate);
+            final Double minimal = waterDataLeak.stream().min(Comparator.comparingDouble(CSVData::getConsumption)).get().getConsumption();
+            final Double sumLeak = minimal * waterDataLeak.size();
+            return new LeakResponse("FAILURE", String.format("There is a potential leak. Amount of the leak estimated %s", sumLeak), lastZeroConsumption.getEndDate());
         }
         return new LeakResponse("OK", null, null);
     }

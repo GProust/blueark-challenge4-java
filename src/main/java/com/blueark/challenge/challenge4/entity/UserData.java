@@ -22,5 +22,7 @@ public class UserData {
     private Date returnDate;
     @Column
     private String residenceType;
+    @Column
+    private Double averageConsumption;
 
 }

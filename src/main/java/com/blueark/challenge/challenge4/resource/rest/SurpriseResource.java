@@ -26,4 +26,17 @@ public class SurpriseResource {
     public SurpriseResponse getSurpriseOnHoliday(@RequestParam("id") String id) {
         return surpriseService.determineIfSurpriseDuringLeaving(id);
     }
+
+    @RequestMapping(value = "month", method = RequestMethod.GET, params = {"id", "date_start", "date_end"})
+    public SurpriseResponse getSurpriseByMonth(@RequestParam("id") String id,
+                                               @RequestParam(value = "date_start", required = false) String startDate,
+                                               @RequestParam(value = "date_end", required = false) String endDate) {
+        return surpriseService.calculateDiffBetweenLastYearSameMonth(id, SanitizerUtil.convertFromString(startDate), SanitizerUtil.convertFromString(endDate));
+    }
+
+    @RequestMapping(value = "year", method = RequestMethod.GET, params = {"id", "date_end"})
+    public SurpriseResponse getSurpriseByYear(@RequestParam("id") String id,
+                                              @RequestParam(value = "date_end", required = false) String endDate) {
+        return surpriseService.calculateDiffBetweenLastYear(id, SanitizerUtil.convertFromString(endDate));
+    }
 }

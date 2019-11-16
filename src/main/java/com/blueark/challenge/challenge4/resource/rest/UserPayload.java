@@ -15,4 +15,5 @@ public class UserPayload {
     private Date returnDate;
     private String residenceType;
     private List<String> notificationSubscribed;
+    private Double averageConsumption;
 }

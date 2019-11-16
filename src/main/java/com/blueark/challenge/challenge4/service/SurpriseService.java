@@ -61,6 +61,8 @@ public class SurpriseService {
     public SurpriseResponse determineIfSurpriseDuringLeaving(String id) {
         final UserPayload userData = dataStorage.getUserDataById(id);
         log.info("userData : {}", userData);
+        if (userData.getDepartureDate() == null || userData.getReturnDate() == null)
+            return new SurpriseResponse("OK", null, null, null, null);
         final List<WaterData> waterDataListFiltered = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, (List) dataStorage.getWaterDataById(id), userData.getDepartureDate(), userData.getReturnDate());
         if (waterDataListFiltered.isEmpty()) return new SurpriseResponse("OK", null, null, null, null);
         final List<WaterData> datasFilteredAndSanitized = SanitizerUtil.sanitizeCSVData((List) waterDataListFiltered);
@@ -81,7 +83,7 @@ public class SurpriseService {
         if (waterDataListFilteredLastYear.isEmpty()) return new SurpriseResponse("OK", null, null, null, null);
         final Double moyenneCurrent = getMoyenne(waterDataListFiltered);
         final Double moyenneLimit = getMoyenne(waterDataListFilteredLastYear) * MAX_AUTHORIZED_UPPER_LIMIT_PERCENT;
-        if (moyenneLimit > moyenneCurrent)
+        if (moyenneLimit < moyenneCurrent)
             return new SurpriseResponse("UNEXPECTED", "You consume too much resources this week compare to last year month", "OVERCONSUME", null, startDate);
         return new SurpriseResponse("OK", null, null, null, null);
     }

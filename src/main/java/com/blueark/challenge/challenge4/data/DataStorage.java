@@ -5,6 +5,7 @@ import com.blueark.challenge.challenge4.entity.UserNotification;
 import com.blueark.challenge.challenge4.repository.UsersNotificationRepository;
 import com.blueark.challenge.challenge4.repository.UsersRepository;
 import com.blueark.challenge.challenge4.resource.rest.UserPayload;
+import com.blueark.challenge.challenge4.service.WaterService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,8 @@ public class DataStorage {
     private UsersRepository usersRepository;
     @Autowired
     private UsersNotificationRepository usersNotificationRepository;
+    @Autowired
+    private WaterService waterService;
     private final Map<String, List<WaterData>> waterDataById = new HashMap<>();
     private final Map<String, List<ElectricityData>> electricityDataById = new HashMap<>();
 
@@ -45,11 +48,15 @@ public class DataStorage {
 
     public UserPayload getUserDataById(String id) {
         final UserData user = usersRepository.getOne(id);
+        if (user.getAverageConsumption() == null) {
+            user.setAverageConsumption(waterService.getAverageConsumption(id));
+            usersRepository.save(user);
+        }
         final List<String> userNotifications = usersNotificationRepository.findByUserId(id)
                 .stream()
                 .map(UserNotification::getNotificationType)
                 .collect(Collectors.toList());
-        return new UserPayload(id, user.getDepartureDate(), user.getReturnDate(), user.getResidenceType(), userNotifications);
+        return new UserPayload(id, user.getDepartureDate(), user.getReturnDate(), user.getResidenceType(), userNotifications, user.getAverageConsumption());
     }
 
     @Transactional
