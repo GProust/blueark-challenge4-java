@@ -1,19 +1,19 @@
 package com.blueark.challenge.challenge4.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "NOTIFICATION_USERS")
 @Data
+@NoArgsConstructor
 public class UserNotification {
 
     @Column
     @Id
+    @GeneratedValue
     private Long notificationId;
 
     @Column

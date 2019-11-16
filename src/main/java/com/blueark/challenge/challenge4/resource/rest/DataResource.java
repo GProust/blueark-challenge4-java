@@ -46,6 +46,7 @@ public class DataResource {
 
     @RequestMapping(value = "user", method = RequestMethod.POST, params = {"id"})
     public void updateUser(@RequestParam("id") String id, @RequestBody UserPayload userPayload) {
+        log.info("userPayload {} and id {}", userPayload, id);
         userPayload.setUserId(id);
         dataStorage.saveUsersData(userPayload);
     }

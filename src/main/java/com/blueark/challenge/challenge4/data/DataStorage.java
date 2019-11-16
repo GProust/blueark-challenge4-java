@@ -5,6 +5,7 @@ import com.blueark.challenge.challenge4.entity.UserNotification;
 import com.blueark.challenge.challenge4.repository.UsersNotificationRepository;
 import com.blueark.challenge.challenge4.repository.UsersRepository;
 import com.blueark.challenge.challenge4.resource.rest.UserPayload;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class DataStorage {
 
     @Autowired
@@ -59,5 +61,6 @@ public class DataStorage {
         usersNotificationRepository.deleteAll(usersNotificationRepository.findByUserId(userPayload.getUserId()));
         usersNotificationRepository.saveAll(userPayload.getNotificationSubscribed().stream()
                 .map(s -> new UserNotification(userPayload.getUserId(), s)).collect(Collectors.toList()));
+        log.info("UserData {}", userDataById);
     }
 }
