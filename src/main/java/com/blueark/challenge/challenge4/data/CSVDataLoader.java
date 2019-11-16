@@ -2,11 +2,12 @@ package com.blueark.challenge.challenge4.data;
 
 import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +15,9 @@ import java.util.Map;
 @Slf4j
 public class CSVDataLoader {
 
-    final Map<String, List<WaterData>> waterDataById = new HashMap<>();
-    final Map<String, List<ElectricityData>> electricityDataById = new HashMap<>();
+    @Autowired
+    private DataStorage dataStorage;
+
     private Map<String, String> waterDataToLoad = Map.of("32336_16857", "data/32336_16857_Eau.csv",
             "32740", "data/32740_Eau.csv",
             "34199", "data/34199_Eau.csv",
@@ -32,30 +34,27 @@ public class CSVDataLoader {
             "55677_55734", "data/BATIMENT_55677_55734_Electricite.csv",
             "55677_55735", "data/BATIMENT_55677_55735_Electricite.csv");
 
-    public CSVDataLoader() {
-        initDataLoading();
-    }
-
-    private void initDataLoading() {
+    @PostConstruct
+    public void initDataLoading() {
 
         waterDataToLoad.forEach((key, value) -> {
             try {
-                waterDataById.put(key,
-                        new CsvToBeanBuilder(
-                                new FileReader(
-                                        getClass().getClassLoader().getResource(value).getPath()))
-                                .withType(WaterData.class).build().parse());
+                final List csvData = new CsvToBeanBuilder(
+                        new FileReader(
+                                getClass().getClassLoader().getResource(value).getPath()))
+                        .withType(WaterData.class).build().parse();
+                dataStorage.addDataForWater(key, csvData);
             } catch (FileNotFoundException e) {
                 log.error("Unknown file.");
             }
         });
         electricityDataToLoad.forEach((key, value) -> {
             try {
-                electricityDataById.put(key,
-                        new CsvToBeanBuilder(
-                                new FileReader(
-                                        getClass().getClassLoader().getResource(value).getPath()))
-                                .withType(ElectricityData.class).build().parse());
+                final List csvData = new CsvToBeanBuilder(
+                        new FileReader(
+                                getClass().getClassLoader().getResource(value).getPath()))
+                        .withType(ElectricityData.class).build().parse();
+                dataStorage.addDataForElectricity(key, csvData);
             } catch (FileNotFoundException e) {
                 log.error("Unknown file.");
             }

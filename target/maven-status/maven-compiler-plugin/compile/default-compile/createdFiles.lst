@@ -1,3 +1,10 @@
+com/blueark/challenge/challenge4/data/CSVData.class
+com/blueark/challenge/challenge4/data/DataStorage.class
+com/blueark/challenge/challenge4/resource/rest/DataResource.class
 com/blueark/challenge/challenge4/data/CSVDataLoader.class
 com/blueark/challenge/challenge4/Challenge4Application.class
+com/blueark/challenge/challenge4/service/ElectricityService.class
 com/blueark/challenge/challenge4/data/WaterData.class
+com/blueark/challenge/challenge4/service/WaterService.class
+com/blueark/challenge/challenge4/data/ElectricityData.class
+com/blueark/challenge/challenge4/util/SanitizerUtil.class

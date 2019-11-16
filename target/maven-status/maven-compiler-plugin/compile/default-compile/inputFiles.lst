@@ -1,3 +1,10 @@
 /home/proust/BlueArk/blueark-challenge4-java/src/main/java/com/blueark/challenge/challenge4/data/CSVDataLoader.java
+/home/proust/BlueArk/blueark-challenge4-java/src/main/java/com/blueark/challenge/challenge4/service/ElectricityService.java
 /home/proust/BlueArk/blueark-challenge4-java/src/main/java/com/blueark/challenge/challenge4/Challenge4Application.java
+/home/proust/BlueArk/blueark-challenge4-java/src/main/java/com/blueark/challenge/challenge4/data/DataStorage.java
+/home/proust/BlueArk/blueark-challenge4-java/src/main/java/com/blueark/challenge/challenge4/resource/rest/DataResource.java
 /home/proust/BlueArk/blueark-challenge4-java/src/main/java/com/blueark/challenge/challenge4/data/WaterData.java
+/home/proust/BlueArk/blueark-challenge4-java/src/main/java/com/blueark/challenge/challenge4/data/CSVData.java
+/home/proust/BlueArk/blueark-challenge4-java/src/main/java/com/blueark/challenge/challenge4/util/SanitizerUtil.java
+/home/proust/BlueArk/blueark-challenge4-java/src/main/java/com/blueark/challenge/challenge4/data/ElectricityData.java
+/home/proust/BlueArk/blueark-challenge4-java/src/main/java/com/blueark/challenge/challenge4/service/WaterService.java
