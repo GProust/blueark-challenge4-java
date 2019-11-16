@@ -39,11 +39,13 @@ public class CSVDataLoader {
 
         waterDataToLoad.forEach((key, value) -> {
             try {
-                final List csvData = new CsvToBeanBuilder(
+                final List<WaterData> csvData = new CsvToBeanBuilder(
                         new FileReader(
                                 getClass().getClassLoader().getResource(value).getPath()))
                         .withType(WaterData.class).build().parse();
+//                log.info("readed list {}", csvData);
                 dataStorage.addDataForWater(key, csvData);
+//                log.info("readed list from dataStorage {}", dataStorage.getWaterDataById("test"));
             } catch (FileNotFoundException e) {
                 log.error("Unknown file.");
             }

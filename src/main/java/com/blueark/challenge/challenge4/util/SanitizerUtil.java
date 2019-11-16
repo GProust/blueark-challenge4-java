@@ -24,6 +24,11 @@ public class SanitizerUtil {
         }
         final List<CSVData> csvDataToRemove = indexesOfNull.stream().map(csvDatas::get).collect(Collectors.toList());
         final List<CSVData> filteredDatas = csvDatas.stream().filter(csvData -> !csvDataToRemove.contains(csvData)).collect(Collectors.toList());
+        sanitizeDate(isWaterData, filteredDatas);
+        return filteredDatas;
+    }
+
+    public static List<CSVData> sanitizeDate(boolean isWaterData, List<CSVData> filteredDatas) {
         if (isWaterData) {
             filteredDatas.stream().filter(csvData -> csvData.getEndDate() == null).forEach(csvData -> {
                 GregorianCalendar gregorianCalendar = new GregorianCalendar();
@@ -41,6 +46,7 @@ public class SanitizerUtil {
         }
         return filteredDatas;
     }
+
 
     public static Date convertFromString(String date) {
         try {

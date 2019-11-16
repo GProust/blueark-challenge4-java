@@ -2,6 +2,7 @@ package com.blueark.challenge.challenge4.data;
 
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +23,10 @@ public class DataStorage {
     }
 
     public List<WaterData> getWaterDataById(String id) {
-        return waterDataById.get(id);
+        return new ArrayList<>(waterDataById.get(id));
     }
 
     public List<ElectricityData> getElectricityDataById(String id) {
-        return electricityDataById.get(id);
+        return new ArrayList<>(electricityDataById.get(id));
     }
 }

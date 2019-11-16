@@ -4,6 +4,7 @@ import com.blueark.challenge.challenge4.data.ElectricityData;
 import com.blueark.challenge.challenge4.data.UserData;
 import com.blueark.challenge.challenge4.data.WaterData;
 import com.blueark.challenge.challenge4.service.ElectricityService;
+import com.blueark.challenge.challenge4.service.LeakService;
 import com.blueark.challenge.challenge4.service.WaterService;
 import com.blueark.challenge.challenge4.util.SanitizerUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,8 @@ public class DataResource {
     private ElectricityService electricityService;
     @Autowired
     private WaterService waterService;
+    @Autowired
+    private LeakService leakService;
 
     @RequestMapping(value = "water", method = RequestMethod.GET, params = {"id", "date_start", "date_end"})
     public List<WaterData> getWaterDataById(@RequestParam(value = "id") String id,
@@ -45,5 +48,12 @@ public class DataResource {
         final UserData userData = new UserData();
         userData.setUserId(id);
         return userData;
+    }
+
+    @RequestMapping(value = "leak", method = RequestMethod.GET, params = {"id", "date_start", "date_end"})
+    public WaterData getLeak(@RequestParam("id") String id,
+                             @RequestParam(value = "date_start", required = false) String startDate,
+                             @RequestParam(value = "date_end", required = false) String endDate) {
+        return leakService.isReturningToNoConsumption(id, SanitizerUtil.convertFromString(startDate), SanitizerUtil.convertFromString(endDate));
     }
 }
