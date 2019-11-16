@@ -17,7 +17,7 @@ public class ElectricityService {
     private DataStorage dataStorage;
 
     public List<ElectricityData> getSanitizedData(String id, Date startDate, Date endDate) {
-        final List<WaterData> waterDatas = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, (List) dataStorage.getElectricityDataById(id), startDate, endDate);
+        final List<WaterData> waterDatas = SanitizerUtil.sanitizeDateAndFilterByPeriod(false, (List) dataStorage.getElectricityDataById(id), startDate, endDate);
         return SanitizerUtil.sanitizeCSVData((List) waterDatas);
     }
 }

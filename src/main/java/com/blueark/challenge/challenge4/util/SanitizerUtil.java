@@ -4,10 +4,7 @@ import com.blueark.challenge.challenge4.data.CSVData;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SanitizerUtil {
@@ -27,6 +24,7 @@ public class SanitizerUtil {
     }
 
     public static List<CSVData> sanitizeDateAndFilterByPeriod(boolean isWaterData, List<CSVData> filteredDatas, Date startDate, Date endDate) {
+        if (filteredDatas == null || filteredDatas.isEmpty()) return new ArrayList<>();
         if (isWaterData) {
             filteredDatas.stream().filter(csvData -> csvData.getEndDate() == null).forEach(csvData -> {
                 GregorianCalendar gregorianCalendar = new GregorianCalendar();

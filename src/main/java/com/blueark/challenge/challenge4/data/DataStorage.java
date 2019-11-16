@@ -8,8 +8,8 @@ import com.blueark.challenge.challenge4.resource.rest.UserPayload;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +36,11 @@ public class DataStorage {
     }
 
     public List<WaterData> getWaterDataById(String id) {
-        return new ArrayList<>(waterDataById.get(id));
+        return waterDataById.get(id);
     }
 
     public List<ElectricityData> getElectricityDataById(String id) {
-        return new ArrayList<>(electricityDataById.get(id));
+        return electricityDataById.get(id);
     }
 
     public UserPayload getUserDataById(String id) {
@@ -52,6 +52,7 @@ public class DataStorage {
         return new UserPayload(id, user.getDepartureDate(), user.getReturnDate(), user.getResidenceType(), userNotifications);
     }
 
+    @Transactional
     public void saveUsersData(UserPayload userPayload) {
         final UserData userDataById = usersRepository.getOne(userPayload.getUserId());
         userDataById.setDepartureDate(userPayload.getDepartureDate());

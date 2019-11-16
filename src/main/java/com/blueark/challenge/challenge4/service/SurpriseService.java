@@ -7,12 +7,14 @@ import com.blueark.challenge.challenge4.data.WaterData;
 import com.blueark.challenge.challenge4.resource.rest.UserPayload;
 import com.blueark.challenge.challenge4.util.DateUtils;
 import com.blueark.challenge.challenge4.util.SanitizerUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@Slf4j
 public class SurpriseService {
 
     private static final double MAX_CONSUMPTION_NIGHT = 0.07d;
@@ -25,6 +27,7 @@ public class SurpriseService {
 
     public SurpriseResponse getSurpriseConsumption(String id, Date startDate, Date endDate) {
         final List<WaterData> waterDataListFiltered = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, (List) dataStorage.getWaterDataById(id), startDate, endDate);
+        if (waterDataListFiltered.isEmpty()) return new SurpriseResponse("OK", null, null, null, null);
         final List<WaterData> datasFilteredAndSanitized = SanitizerUtil.sanitizeCSVData((List) waterDataListFiltered);
         final Set<Integer> daysToTest = new HashSet<>();
         datasFilteredAndSanitized.forEach(waterData -> {
@@ -57,7 +60,9 @@ public class SurpriseService {
 
     public SurpriseResponse determineIfSurpriseDuringLeaving(String id) {
         final UserPayload userData = dataStorage.getUserDataById(id);
+        log.info("userData : {}", userData);
         final List<WaterData> waterDataListFiltered = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, (List) dataStorage.getWaterDataById(id), userData.getDepartureDate(), userData.getReturnDate());
+        if (waterDataListFiltered.isEmpty()) return new SurpriseResponse("OK", null, null, null, null);
         final List<WaterData> datasFilteredAndSanitized = SanitizerUtil.sanitizeCSVData((List) waterDataListFiltered);
         final double sumConsumption = datasFilteredAndSanitized.stream().map(CSVData::getConsumption).mapToDouble(Double::doubleValue).sum();
         if (sumConsumption > MAX_WATER_USED_WHEN_LEAVING) {
@@ -71,7 +76,9 @@ public class SurpriseService {
         final Date startDateLastYear = DateUtils.changeDate(-1, 0, 0, startDate);
         final Date endDateLastYear = DateUtils.changeDate(0, 0, 30, startDateLastYear);
         final List<WaterData> waterDataListFiltered = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, waterDataById, startDate, endDate);
+        if (waterDataListFiltered.isEmpty()) return new SurpriseResponse("OK", null, null, null, null);
         final List<WaterData> waterDataListFilteredLastYear = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, waterDataById, startDateLastYear, endDateLastYear);
+        if (waterDataListFilteredLastYear.isEmpty()) return new SurpriseResponse("OK", null, null, null, null);
         final Double moyenneCurrent = getMoyenne(waterDataListFiltered);
         final Double moyenneLimit = getMoyenne(waterDataListFilteredLastYear) * MAX_AUTHORIZED_UPPER_LIMIT_PERCENT;
         if (moyenneLimit > moyenneCurrent)
@@ -89,7 +96,9 @@ public class SurpriseService {
         gregorianCalendar.set(DateUtils.getYear(lastDateObtain) - 1, Calendar.DECEMBER, 31);
         final Date endLastYearDate = gregorianCalendar.getTime();
         final List<WaterData> waterDataListFiltered = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, waterDataById, startLaCurrentYearDate, lastDateObtain);
+        if (waterDataListFiltered.isEmpty()) return new SurpriseResponse("OK", null, null, null, null);
         final List<WaterData> waterDataListFilteredLastYear = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, waterDataById, startLastYearDate, endLastYearDate);
+        if (waterDataListFilteredLastYear.isEmpty()) return new SurpriseResponse("OK", null, null, null, null);
         if (waterDataListFilteredLastYear.size() < MIN_VALUE_NEEDED_TO_PROCESS)
             return new SurpriseResponse("FAIL", "Unable to process due to the lack of data", "LACK_OF_DATA", null, null);
         final Double sumCurrentYear = waterDataListFiltered.stream().filter(waterData -> waterData.getConsumption() != null).map(WaterData::getConsumption).mapToDouble(Double::doubleValue).sum();

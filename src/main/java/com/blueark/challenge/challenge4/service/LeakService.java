@@ -27,6 +27,7 @@ public class LeakService {
 
     public LeakResponse isReturningToNoConsumption(String id, Date startDate, Date endDate) {
         final List<WaterData> waterDataListFiltered = SanitizerUtil.sanitizeDateAndFilterByPeriod(true, (List) dataStorage.getWaterDataById(id), startDate, endDate);
+        if (waterDataListFiltered.isEmpty()) return new LeakResponse("OK", null, null);
         final int originalSize = waterDataListFiltered.size();
         final List<WaterData> sanitizeWaterData = SanitizerUtil.sanitizeCSVData((List) waterDataListFiltered);
         final int sanitizedSize = sanitizeWaterData.size();
@@ -42,7 +43,7 @@ public class LeakService {
             return new LeakResponse("FAILURE", "There is a potential leak", numberOfZero == 0 ? startDate : lastZeroConsumption.getEndDate());
         }
         GregorianCalendar gregorianCalendar = new GregorianCalendar();
-        gregorianCalendar.setTime(lastZeroConsumption.getEndDate());
+        gregorianCalendar.setTime(lastZeroConsumption.getEndDate() == null ? startDate : lastZeroConsumption.getEndDate());
         gregorianCalendar.add(Calendar.DAY_OF_MONTH, NUMBER_OF_DAYS_WITHOUT_CONSUMPTION_LESS);
         final Date time = gregorianCalendar.getTime();
         final WaterData lastWaterData = sanitizeWaterData.get(sanitizeWaterData.size() - 1);
