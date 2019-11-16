@@ -1,18 +1,15 @@
 package com.blueark.challenge.challenge4.resource.rest;
 
+import com.blueark.challenge.challenge4.data.DataStorage;
 import com.blueark.challenge.challenge4.data.ElectricityData;
-import com.blueark.challenge.challenge4.data.UserData;
 import com.blueark.challenge.challenge4.data.WaterData;
+import com.blueark.challenge.challenge4.entity.UserData;
 import com.blueark.challenge.challenge4.service.ElectricityService;
-import com.blueark.challenge.challenge4.service.LeakService;
 import com.blueark.challenge.challenge4.service.WaterService;
 import com.blueark.challenge.challenge4.util.SanitizerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,7 +22,7 @@ public class DataResource {
     @Autowired
     private WaterService waterService;
     @Autowired
-    private LeakService leakService;
+    private DataStorage dataStorage;
 
     @RequestMapping(value = "water", method = RequestMethod.GET, params = {"id", "date_start", "date_end"})
     public List<WaterData> getWaterDataById(@RequestParam(value = "id") String id,
@@ -44,16 +41,12 @@ public class DataResource {
     }
 
     @RequestMapping(value = "user", method = RequestMethod.GET, params = {"id"})
-    public UserData getUser(@RequestParam("id") Long id) {
-        final UserData userData = new UserData();
-        userData.setUserId(id);
-        return userData;
+    public UserData getUser(@RequestParam("id") String id) {
+        return dataStorage.getUserDataById(id);
     }
 
-    @RequestMapping(value = "leak", method = RequestMethod.GET, params = {"id", "date_start", "date_end"})
-    public WaterData getLeak(@RequestParam("id") String id,
-                             @RequestParam(value = "date_start", required = false) String startDate,
-                             @RequestParam(value = "date_end", required = false) String endDate) {
-        return leakService.isReturningToNoConsumption(id, SanitizerUtil.convertFromString(startDate), SanitizerUtil.convertFromString(endDate));
+    @RequestMapping(value = "user", method = RequestMethod.POST)
+    public void updateUser(@RequestBody UserPayload userPayload) {
+        dataStorage.saveUsersData(userPayload);
     }
 }

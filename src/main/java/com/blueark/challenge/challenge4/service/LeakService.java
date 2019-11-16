@@ -1,6 +1,7 @@
 package com.blueark.challenge.challenge4.service;
 
 import com.blueark.challenge.challenge4.data.DataStorage;
+import com.blueark.challenge.challenge4.data.LeakResponse;
 import com.blueark.challenge.challenge4.data.WaterData;
 import com.blueark.challenge.challenge4.util.SanitizerUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ public class LeakService {
     @Autowired
     private DataStorage dataStorage;
 
-    public WaterData isReturningToNoConsumption(String id, Date startDate, Date endDate) {
+    public LeakResponse isReturningToNoConsumption(String id, Date startDate, Date endDate) {
         final List<WaterData> waterDataById = SanitizerUtil.sanitizeDate(true, (List) dataStorage.getWaterDataById(id));
         final List<WaterData> waterDataListFiltered = waterDataById.stream()
                 .filter(waterData -> waterData.getBeginDate().after(startDate))
@@ -35,17 +36,22 @@ public class LeakService {
         final int sanitizedSize = sanitizeWaterData.size();
         final int diff = Double.valueOf(originalSize * MAX_NUMBER_OF_UNDEFINED_VALUES_POURCENTAGE).intValue();
         final int originalWithout20Pourcent = originalSize - diff;
-        if (originalWithout20Pourcent > sanitizedSize) return new WaterData();
+        if (originalWithout20Pourcent > sanitizedSize)
+            return new LeakResponse("UNKNOWN", "Data are not trustfull enough", null);
         final List<WaterData> datasWithoutConsumption = sanitizeWaterData.stream().filter(waterData -> waterData.getConsumption() == 0).collect(Collectors.toList());
         final int numberOfZero = datasWithoutConsumption.size();
         final WaterData lastZeroConsumption = numberOfZero == 0 ? new WaterData() : datasWithoutConsumption.get(numberOfZero - 1);
-        if (numberOfZero < MIN_ZERO_NUMBER_POURCENTAGE) return lastZeroConsumption;
+        if (numberOfZero < MIN_ZERO_NUMBER_POURCENTAGE) {
+            return new LeakResponse("FAILURE", "There is a potential leak", numberOfZero == 0 ? startDate : lastZeroConsumption.getEndDate());
+        }
         GregorianCalendar gregorianCalendar = new GregorianCalendar();
         gregorianCalendar.setTime(lastZeroConsumption.getEndDate());
         gregorianCalendar.add(Calendar.DAY_OF_MONTH, NUMBER_OF_DAYS_WITHOUT_CONSUMPTION_LESS);
         final Date time = gregorianCalendar.getTime();
         final WaterData lastWaterData = sanitizeWaterData.get(sanitizeWaterData.size() - 1);
-        if (time.before(lastWaterData.getBeginDate())) return lastZeroConsumption;
-        return null;
+        if (time.before(lastWaterData.getBeginDate())) {
+            return new LeakResponse("FAILURE", "There is a potential leak", lastZeroConsumption.getEndDate());
+        }
+        return new LeakResponse("OK", null, null);
     }
 }
